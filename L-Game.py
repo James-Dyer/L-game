@@ -96,8 +96,8 @@ def getSecondaryOrientation(position, orientation):
 
 def getLegalActions(state):
     """
-    Returns all of the possible valid moves the player can make in form:
-    ((playerpos), 'Orient', (oldNeutralPos), (newNeutralPos))
+    Returns all possible valid moves a player can make in the current game state.
+    Each move is represented as a tuple: ((player_pos), 'Orientation', (oldNeutralPos), (newNeutralPos)).
     """
 
     # Get current player's data
@@ -157,8 +157,10 @@ def getLegalActions(state):
 
 def isValidLMove(position, orientation, board):
     """
-    Check if moving the L-piece to the given position with orientation is valid.
+    Checks if placing the L-piece at a given position and orientation is valid.
+    Ensures the placement go out of bounds.
     """
+
     secondary_orient = getSecondaryOrientation(position, orientation)
 
     for rx, ry in orientations[orientation][secondary_orient]:
@@ -173,6 +175,11 @@ def isValidLMove(position, orientation, board):
     return True
 
 def getNeutralMoves(board, oldpos):
+    """
+    Generates all possible moves for a neutral piece.
+    Neutral pieces can move to any empty space or stay in their current position.
+    """
+
     moves = []
 
     for x in range(4):
@@ -183,8 +190,8 @@ def getNeutralMoves(board, oldpos):
 
 def playerTurn(state):
     """
-    Game logic for manually playing the game.
-    Called for each player's turn
+    Handles a player's turn. 
+    Displays the board, gets player input, validates the move, and updates the game state.
     """
 
     # Get current player's data
@@ -248,6 +255,11 @@ def playerTurn(state):
     return
 
 def computerTurn(state):
+    """
+    Executes the computer's turn. 
+    Uses the minimax algorithm to determine the best move and updates the game state.
+    """
+
     # Track the execution time of turn
     start_time = time.time()
 
@@ -323,6 +335,10 @@ def computerTurn(state):
     return
 
 def evaluate_state(state):
+    """
+    Evaluates the game state to determine its heuristic value for the Minimax algorithm.
+    Positive values favor the current player, while negative values favor the opponent.
+    """
 
     standardized_loss_states = set(())
 
@@ -347,10 +363,84 @@ def evaluate_state(state):
     # Heuristic: difference in legal moves
     return player_moves - opponent_moves
 
-def standardize_state():
-    return
+def printBoard(board):
+    for row in board:
+        print(' '.join(row))
+    print()
+
+def build_symmetries(board):
+    """
+    Generates all eight symmetries of a 4x4 board, including rotations and reflections.
+    Returns a list of all symmetric board configurations.
+    """
+
+    symmetries = []
+
+    # Identity (original board)
+    symmetries.append([row[:] for row in board])
+
+    # 90° clockwise rotation
+    rotated_90 = [['.' for _ in range(4)] for _ in range(4)] 
+    for i in range(4):
+        for j in range(4):
+            rotated_90[j][3 - i] = board[i][j]
+    symmetries.append(rotated_90)
+
+    # 180° clockwise rotation
+    rotated_180 = [['.' for _ in range(4)] for _ in range(4)]
+    for i in range(4):
+        for j in range(4):
+            rotated_180[3 - i][3 - j] = board[i][j]
+    symmetries.append(rotated_180)
+
+    # 270° clockwise rotation
+    rotated_270 = [['.' for _ in range(4)] for _ in range(4)]
+    for i in range(4):
+        for j in range(4):
+            rotated_270[3 - j][i] = board[i][j]
+    symmetries.append(rotated_270)
+
+    # Horizontal reflection
+    reflected_h = [['.' for _ in range(4)] for _ in range(4)]
+    for i in range(4):
+        for j in range(4):
+            reflected_h[3 - i][j] = board[i][j]
+    symmetries.append(reflected_h)
+
+    # Vertical reflection
+    reflected_v = [['.' for _ in range(4)] for _ in range(4)]
+    for i in range(4):
+        for j in range(4):
+            reflected_v[i][3 - j] = board[i][j]
+    symmetries.append(reflected_v)
+
+    # Diagonal reflection (top-left to bottom-right)
+    reflected_d1 = [['.' for _ in range(4)] for _ in range(4)]
+    for i in range(4):
+        for j in range(4):
+            reflected_d1[j][i] = board[i][j]
+    symmetries.append(reflected_d1)
+
+    # Anti-diagonal reflection (top-right to bottom-left)
+    reflected_d2 = [['.' for _ in range(4)] for _ in range(4)]
+    for i in range(4):
+        for j in range(4):
+            reflected_d2[3 - j][3 - i] = board[i][j]
+    symmetries.append(reflected_d2)
+
+    # Print all boards for verification
+    for idx, sym_board in enumerate(symmetries):
+        print(f"Symmetry {idx + 1}:")
+        printBoard(sym_board)
+
+    return symmetries
 
 def minimax(state, depth, alpha, beta, maximizing_player):
+    """
+    Implements the Minimax algorithm with alpha-beta pruning.
+    Evaluates the best move for the current player given the game state.
+    """
+
     if depth == 0 or is_terminal(state):
         return evaluate_state(state), None
 
@@ -386,6 +476,11 @@ def minimax(state, depth, alpha, beta, maximizing_player):
         return min_eval, best_action
 
 def apply_action(state, action):
+    """
+    Applies a player's move to the game state, updating positions and orientations
+    of pieces and switching turns. Returns the new game state.
+    """
+
     new_state = copy.deepcopy(state)
     player = new_state['turn']
     player_key = 'player1' if player == 1 else 'player2'
@@ -410,10 +505,19 @@ def apply_action(state, action):
     return new_state
 
 def is_terminal(state):
+    """
+    Checks if the game is in a terminal state, i.e., no legal moves are available.
+    """
+
     legal_actions = getLegalActions(state)
     return len(legal_actions) == 0
 
 def format_move(action):
+    """
+    Formats a player's action into a readable string representation.
+    Includes coordinates, orientation, and optional neutral piece movement.
+    """
+
     (x, y), orient, old_neutral_pos, new_neutral_pos = action
     move_str = f"{x + 1} {y + 1} {orient}"
     if new_neutral_pos is not None:
@@ -424,7 +528,8 @@ def format_move(action):
 
 def getPlayerInput(playerID, state, board):
     """
-    Prompts for the player's input string and validates it against the expected format
+    Prompts the player for a move input. Validates the format of the input
+    and ensures it adheres to the game rules. Returns a parsed move.
     """
 
     while True:
@@ -479,6 +584,10 @@ def getPlayerInput(playerID, state, board):
             return ((x, y), orient, (a, b), (c, d))
     
 def terminalState(losingPlayer):
+    """
+    Displays the end-game message indicating which player lost.
+    """
+    
     winningPlayer = losingPlayer % 2 + 1
 
     print(f"Player {losingPlayer} has run out of moves. Player {winningPlayer} wins.\n")
@@ -666,9 +775,11 @@ def main():
     arguments = set(sys.argv)
     if "--randomCPU" in arguments:
         global_vars['random_cpu'] = True
-        
 
-    mainMenu()
+    board = buildBoard(initial_state)
+    build_symmetries(board)
+
+    #mainMenu()
 
 if __name__ == "__main__":
     main()
