@@ -1,6 +1,7 @@
 import copy
 import sys
 import random
+import time
 
 initial_state = {
     'player1': {'position': (2, 0), 'orientation': 'W'},
@@ -12,13 +13,19 @@ initial_state = {
     'depth': 2,
 }
 
+global_vars = {
+    'moves': 0,
+    'cmd_args': None,
+    'random_cpu': False,
+    'execution_times': []
+}
+
 orientations = {
     'N': {'E': [(0, 0), (-1, 0), (-2, 0), (0, -1)], 'W': [(0, 0), (1, 0), (2, 0), (0, -1)]},
     'E': {'N': [(0, 0), (0, 1), (0, 2), (1, 0)], 'S':[(0, 0), (0, -1), (0, -2), (1, 0)]},
     'S': {'E': [(0, 0), (-1, 0), (-2, 0), (0, 1)], 'W':[(0, 0), (1, 0), (2, 0), (0, 1)]},
     'W': {'N': [(0, 0), (0, 1), (0, 2), (-1, 0)], 'S':[(0, 0), (0, -1), (0, -2), (-1, 0)]}
 }
-
 
 # Build a 2D array game board based off the current game state and display it
 def buildBoard(state):
@@ -86,7 +93,6 @@ def getSecondaryOrientation(position, orientation):
             secondary_orient = 'E' 
         
     return secondary_orient
-
 
 def getLegalActions(state):
     """
@@ -242,6 +248,8 @@ def playerTurn(state):
     return
 
 def computerTurn(state):
+    # Track the execution time of turn
+    start_time = time.time()
 
     # Get current player's data
     player = state['turn']
@@ -256,7 +264,11 @@ def computerTurn(state):
 
     board = buildBoard(state)
 
-    print("Computer's turn...")
+    if initial_state['game_mode'] == 'PvC':
+        print("Computer's turn...")
+    else:
+        print(f"\nComputer {player}'s turn...")
+    
     printBoard(board)
 
     if is_terminal(state):
@@ -269,16 +281,38 @@ def computerTurn(state):
         terminalState(player)
         return
 
-    # Update state with the best action
-    if player == 2:
+    # Player 2 is random
+    if player == 2 and global_vars['random_cpu'] == True:
         list_legal_actions = list(legal_actions)
         best_action = list_legal_actions[random.randint(0, len(list_legal_actions) - 1)]
+    
+    # Update state with the best action
     state = apply_action(state, best_action)
 
     # Print the computer's move in the required format
-    print("Computer's move:")
+    if initial_state['game_mode'] == 'PvC':
+        print("Computer's move:")
+    else:
+        print(f"Computer {player}'s move:")
     print(format_move(best_action))
 
+    global_vars['moves'] += 1
+    if (player == 1):
+        print("\n--------------------")
+        print("Turn", global_vars['moves'])
+
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print(f"Execution Time: {round(execution_time, 2)} seconds")
+    if global_vars['random_cpu'] == True and player == 1:
+        global_vars['execution_times'].append(execution_time)
+    elif global_vars['random_cpu'] == False:
+        global_vars['execution_times'].append(execution_time)
+
+    numbers = global_vars['execution_times']
+    avg = sum(numbers) / len(numbers)
+    print(f"Avg excecution time: {round(avg, 2)} seconds")
+    
     # Proceed to next turn
     if state['game_mode'] == 'PvC':
         playerTurn(state)
@@ -289,6 +323,9 @@ def computerTurn(state):
     return
 
 def evaluate_state(state):
+
+    standardized_loss_states = set(())
+
     player = state['turn']
     opponent = 1 if player == 2 else 2
 
@@ -309,6 +346,9 @@ def evaluate_state(state):
 
     # Heuristic: difference in legal moves
     return player_moves - opponent_moves
+
+def standardize_state():
+    return
 
 def minimax(state, depth, alpha, beta, maximizing_player):
     if depth == 0 or is_terminal(state):
@@ -381,13 +421,6 @@ def format_move(action):
         c, d = new_neutral_pos
         move_str += f" {a + 1} {b + 1} {c + 1} {d + 1}"
     return move_str
-
-
-def endGame(losingPlayer):
-    winningPlayer = losingPlayer%2 + 1
-    print(f"Player {losingPlayer} has ran out of moves. \nPlayer {winningPlayer} wins.")
-    return
-
 
 def getPlayerInput(playerID, state, board):
     """
@@ -518,8 +551,6 @@ def start_cvc():
     initial_state['game_mode'] = 'CvC'
     computerTurn(copy.deepcopy(initial_state))
 
-
-
 def setInitialGameState():
     global initial_state
 
@@ -595,7 +626,6 @@ def setInitialGameState():
         mainMenu()
         return
     
-
 def printBoard(board):
     # ANSI escape codes for styling
     RED_BOLD = "\033[1;31m"
@@ -631,6 +661,13 @@ def printLegalActions(state, board):
     printBoard(board)
 
 def main():
+
+    # Parse cmd line arguments
+    arguments = set(sys.argv)
+    if "--randomCPU" in arguments:
+        global_vars['random_cpu'] = True
+        
+
     mainMenu()
 
 if __name__ == "__main__":
