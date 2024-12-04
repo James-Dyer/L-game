@@ -248,7 +248,7 @@ def playerTurn(state):
                 break
                 
             else:
-                print(f"{playerInput} not in legalMoves")
+                if (global_vars['debug']): print(f"{playerInput} not in legalMoves")
                 raise ValueError("Not a legal move")
 
         except ValueError as e: 
@@ -305,7 +305,9 @@ def computerTurn(state):
 
     _, best_action = minimax(state, global_vars['depth'], float('-inf'), float('inf'), True)
     
-
+    if (global_vars['debug']):
+        #print("legal actions:", legal_actions)
+        print("best_action:", best_action, "score:", _)
 
     # Player 2 is random
     if player == 2 and global_vars['random_cpu'] == True:
@@ -320,7 +322,7 @@ def computerTurn(state):
                 heapq.heappush(action_priority_queue, (priority, len(action_priority_queue), action))  
             best_action = heapq.heappop(action_priority_queue)[2]
             if (global_vars['debug']): 
-                print('CRISES AVERTED')
+                print('Random action chosen.')
                 input()
         
         elif best_action is None:
@@ -384,8 +386,13 @@ def evaluate_state(state):
     Positive values favor the current player, while negative values favor the opponent.
     """
 
-    player = state['turn']
+    player = state['turn'] % 2 + 1
     opponent = 1 if player == 2 else 2
+
+    temp = state['turn']
+
+    """ player = 1 # maximizing player
+    opponent = 2 # minimizing player"""
 
     # Any of these 14 predetermined states is a garenteed loss
     # against a optimal opponent and therefor avoided
@@ -416,7 +423,7 @@ def evaluate_state(state):
     state['turn'] = opponent
     opponent_moves = len(getLegalActions(state))
 
-    state['turn'] = player  # Reset turn
+    state['turn'] = temp  # Reset turn
 
     # Check for terminal state
     if opponent_moves == 0:
@@ -436,6 +443,7 @@ def build_symmetries(board):
     """
     Generates all eight symmetries of a 4x4 board, including rotations and reflections.
     Returns a list of all symmetric board configurations.
+    CURRENTLY UNUSED
     """
 
     symmetries = []
@@ -523,10 +531,10 @@ def minimax(state, depth, alpha, beta, maximizing_player):
     Evaluates the best move for the current player given the game state.
     """
 
-    if depth == 0 or is_terminal(state):
+    if depth == 0:
         return evaluate_state(state), None
 
-    legal_actions = getLegalActions(state) # Redundant line of code?
+    legal_actions = getLegalActions(state)
     if not legal_actions:
         return evaluate_state(state), None
 
@@ -564,6 +572,7 @@ def minimax(state, depth, alpha, beta, maximizing_player):
 def prioritize_actions(state, legal_actions, maximizing_player):
     """
     Assign priorities to legal actions based on a heuristic evaluation of the resulting state.
+    CURRENTLY UNUSED
     """
     action_priority_queue = []
     for action in legal_actions:
@@ -873,7 +882,6 @@ def setInitialGameState():
         return
     
 def printBoard(board):
-    # ANSI escape codes for styling
     RED_BOLD = "\033[1;31m"
     BLUE_BOLD = "\033[1;34m"
     LIGHT_GRAY = "\033[1;30m"
@@ -882,7 +890,6 @@ def printBoard(board):
     print("\n    1 2 3 4")  # Column headers
     print("  +---------+")
     for i, row in enumerate(board):
-        # Replace '1' with red background, '2' with blue background, and '.' with light gray
         colored_row = [
             f"{RED_BOLD}1{RESET}" if char == '1' else
             f"{BLUE_BOLD}2{RESET}" if char == '2' else
@@ -907,6 +914,7 @@ def printLegalActions(state, board):
     printBoard(board)
 
 def parseInitialBoard():
+    """CURRENTLY UNUSED"""
 
     loss_state_codes = [
         "1 4 N 1 2 4 4 2 3 E",
@@ -968,11 +976,29 @@ def chooseMinimaxDepth():
                 import traceback
                 traceback.print_exc()
 
+def tinymax(state, depth):
+    if (depth == 1): legal_actions = {((2, 1), 'S', (0, 0), (2, 0))}
+    else: legal_actions = None
+
+    if not legal_actions:
+        print("miniscore", evaluate_state(state))
+        return evaluate_state(state), None
+
+    max_eval = float('inf')
+    
+
+    for action in legal_actions:
+        new_state = apply_action(state, action)
+        print(new_state)
+        eval, _ = tinymax(new_state, 0)
+        #if eval > max_eval:
+        if True:
+            max_eval = eval
+            best_action = action
+    return (max_eval, best_action)
 
 def main():
-
-
-
+    
     mainMenu()
 
 
