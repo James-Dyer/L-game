@@ -19,7 +19,7 @@ global_vars = {
     'random_cpu': False, # If player2 is a CPU, then it will play moves at random
     'execution_times': [],
     'game_mode': 'PvP',
-    'depth': 2, # The max depth for the minimax algorithm
+    'depth': 3, # The max depth for the minimax algorithm
     
     'nodes_evaluated': 0,
 
@@ -27,7 +27,10 @@ global_vars = {
 
     'priorityq': False,
 
-    'stepbystep': False
+    'stepbystep': False,
+
+    'visited' : set(),
+    'cache': {},
 }
 
 orientations = {
@@ -303,7 +306,9 @@ def computerTurn(state):
         terminalState(player)
         return
 
-    _, best_action = minimax(state, global_vars['depth'], float('-inf'), float('inf'), True)
+    _, best_action = minimax(state, board, global_vars['depth'], float('-inf'), float('inf'), True)
+
+    global_vars['visited'] = set() # reset visited set
     
     if (global_vars['debug']):
         #print("legal actions:", legal_actions)
@@ -321,9 +326,6 @@ def computerTurn(state):
                 priority = -heuristic_score
                 heapq.heappush(action_priority_queue, (priority, len(action_priority_queue), action))  
             best_action = heapq.heappop(action_priority_queue)[2]
-            if (global_vars['debug']): 
-                print('Random action chosen.')
-                input()
         
         elif best_action is None:
             terminalState(player)
@@ -443,7 +445,6 @@ def build_symmetries(board):
     """
     Generates all eight symmetries of a 4x4 board, including rotations and reflections.
     Returns a list of all symmetric board configurations.
-    CURRENTLY UNUSED
     """
 
     symmetries = []
@@ -505,9 +506,9 @@ def build_symmetries(board):
         print(f"Symmetry {idx + 1}:")
         printBoard(sym_board)"""
 
-    lexicographical_strings = [board_to_lex_string(symmetry) for symmetry in symmetries]
+    #lexicographical_strings = [board_to_lex_string(symmetry) for symmetry in symmetries]
 
-    return lexicographical_strings
+    return [tuple(map(tuple, board)) for board in symmetries]
 
 def normalize_board(board):
     """
@@ -525,7 +526,7 @@ def board_to_lex_string(board):
     """
     return ''.join(''.join(row) for row in board)
 
-def minimax(state, depth, alpha, beta, maximizing_player):
+def minimax(state, board, depth, alpha, beta, maximizing_player):
     """
     Implements the Minimax algorithm with alpha-beta pruning.
     Evaluates the best move for the current player given the game state.
@@ -533,6 +534,10 @@ def minimax(state, depth, alpha, beta, maximizing_player):
 
     if depth == 0:
         return evaluate_state(state), None
+
+    board_tuple = tuple(map(tuple, board))
+    if board_tuple in global_vars['visited']:
+        return global_vars['cache'][board_tuple]  # Return cached value if available      
 
     legal_actions = getLegalActions(state)
     if not legal_actions:
@@ -546,13 +551,17 @@ def minimax(state, depth, alpha, beta, maximizing_player):
         for action in legal_actions:
             global_vars['nodes_evaluated'] += 1
             new_state = apply_action(state, action)
-            eval, _ = minimax(new_state, depth - 1, alpha, beta, False)
+            new_board = buildBoard(new_state)
+            eval, _ = minimax(new_state, new_board, depth - 1, alpha, beta, False)
             if eval > max_eval:
                 max_eval = eval
                 best_action = action
             alpha = max(alpha, eval)
             if beta <= alpha:
                 break  # Beta cut-off
+        # Cache the result
+        global_vars['visited'].add(board_tuple)
+        global_vars['cache'][board_tuple] = (max_eval, best_action)
         return max_eval, best_action
     else:
         min_eval = float('inf')
@@ -560,13 +569,17 @@ def minimax(state, depth, alpha, beta, maximizing_player):
         for action in legal_actions:
             global_vars['nodes_evaluated'] += 1
             new_state = apply_action(state, action)
-            eval, _ = minimax(new_state, depth - 1, alpha, beta, True)
+            new_board = buildBoard(new_state)
+            eval, _ = minimax(new_state, new_board, depth - 1, alpha, beta, True)
             if eval < min_eval:
                 min_eval = eval
                 best_action = action
             beta = min(beta, eval)
             if beta <= alpha:
                 break  # Alpha cut-off
+        # Cache the result
+        global_vars['visited'].add(board_tuple)
+        global_vars['cache'][board_tuple] = (min_eval, best_action)
         return min_eval, best_action
 
 def prioritize_actions(state, legal_actions, maximizing_player):
