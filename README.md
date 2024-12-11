@@ -6,7 +6,7 @@ The L Game was invented by Edward de Bono in 1967\. It is a two player game play
 
 Each player takes turns moving their L piece, and then optionally moving a neutral piece. The game ends when one player cannot move their L piece to a new position on their turn.
 
-This was an assigned lab project for UC Merced’s Fall 2024 CSE175 course, Intro to Artificial Intelligence. ([archive](http://web.archive.org/web/20241211222812/https://faculty.ucmerced.edu/mcarreira-perpinan/teaching/CSE175/L-game.html))
+This was an assigned lab project for UC Merced’s Fall 2024 CSE175 course, Intro to Artificial Intelligence. ([Archived Link](http://web.archive.org/web/20241211222812/https://faculty.ucmerced.edu/mcarreira-perpinan/teaching/CSE175/L-game.html))
 
 ## Features:
 
