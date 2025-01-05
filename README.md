@@ -1,12 +1,13 @@
 # The L Game
 
 The L Game was invented by Edward de Bono in 1967\. It is a two player game played on a 4x4 board, with each player having one 3x2 shaped “L piece”, and there are two 1x1 neutral pieces.   
-![L-Game board visualized](https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/L_Game_start_position.svg/330px-L_Game_start_position.svg.png) 
+![L-Game board visualized](https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/L_Game_start_position.svg/330px-L_Game_start_position.svg.png)
+
 *The L-Game initial board. ([https://en.wikipedia.org/wiki/L\_game](https://en.wikipedia.org/wiki/L_game))*
 
 Each player takes turns moving their L piece, and then optionally moving a neutral piece. The game ends when one player cannot move their L piece to a new position on their turn.
 
-This was an assigned lab project for UC Merced’s Fall 2024 CSE175 course, Intro to Artificial Intelligence. ([archive](http://web.archive.org/web/20241211222812/https://faculty.ucmerced.edu/mcarreira-perpinan/teaching/CSE175/L-game.html))
+This was an assigned lab project for UC Merced’s Fall 2024 CSE175 course, Intro to Artificial Intelligence. ([Archived link](http://web.archive.org/web/20241211222812/https://faculty.ucmerced.edu/mcarreira-perpinan/teaching/CSE175/L-game.html))
 
 ## Features:
 
