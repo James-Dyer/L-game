@@ -21,7 +21,7 @@ This was an assigned lab project for UC Merced’s Fall 2024 CSE175 course, Intr
   * Developed a heuristic evaluation function for efficient decisions.  
   * Optimized for performance using appropriate data structures and algorithms, as well as caching strategies.
 
-Refer to `report.docx` for further documentation.
+Refer to `report.pdf` for further documentation.
 
 ## Installation and Usage
 
