@@ -40,11 +40,12 @@ orientations = {
     'W': {'N': [(0, 0), (0, 1), (0, 2), (-1, 0)], 'S':[(0, 0), (0, -1), (0, -2), (-1, 0)]}
 }
 
-# Build a 2D array game board based off the current game state and display it
 def buildBoard(state):
     board = [['.' for i in range(4)] for i in range(4)]
 
     """ 
+    Build a 2D array game board based off the current game state and display it]
+    
     Relative orientations for L-pieces with primary and secondary orientations
     Secondary orientations are determined by which half the piece is positioned on
     """
@@ -278,6 +279,7 @@ def computerTurn(state):
 
     # Get current player's data
     player = state['turn']
+    
     player_key = 'player1' if player == 1 else 'player2'
     other_player_key = 'player2' if player == 1 else 'player1'
     player_pos = state[player_key]['position']
@@ -306,7 +308,12 @@ def computerTurn(state):
         terminalState(player)
         return
 
-    _, best_action = minimax(state, board, global_vars['depth'], float('-inf'), float('inf'), True)
+    if (player == 1):
+        bool_player = True
+    else:
+        bool_player = False
+    
+    _, best_action = minimax(state, board, global_vars['depth'], float('-inf'), float('inf'), bool_player)
 
     global_vars['visited'] = set() # reset visited set
     
@@ -419,10 +426,10 @@ def evaluate_state(state):
         return float('-inf')"""
     
     # Get legal moves for both players
-    state['turn'] = player
+    state['turn'] = 1
     player_moves = len(getLegalActions(state))
 
-    state['turn'] = opponent
+    state['turn'] = 2
     opponent_moves = len(getLegalActions(state))
 
     state['turn'] = temp  # Reset turn
