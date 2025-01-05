@@ -1,5 +1,53 @@
 import pytest
 from L_Game_copy import getSecondaryOrientation
+from L_Game_copy import evaluate_state
+
+@pytest.mark.parametrize(
+    "state, expected",
+    [
+        (
+            { # Terminal state, player 2 win
+            'player1': {'position': (0, 3), 'orientation': 'N'},
+            'player2': {'position': (2, 1), 'orientation': 'S'},
+            'neutral': [(2, 0), (3, 3)],
+            'turn': 1,  
+            'bypass_player': None,
+            }, 
+        float('-inf')),
+        (
+            { # Terminal state, player 1 win
+            'player1': {'position': (2, 2), 'orientation': 'S'},
+            'player2': {'position': (0, 1), 'orientation': 'N'},
+            'neutral': [(2, 0), (3, 1)],
+            'turn': 2,  
+            'bypass_player': None,
+            }, 
+        float('inf')),
+        (
+            { # Initial state, player 1's turn
+            'player1': {'position': (2, 0), 'orientation': 'W'},
+            'player2': {'position': (1, 3), 'orientation': 'E'},
+            'neutral': [(0, 0), (3, 3)],
+            'turn': 1,  
+            'bypass_player': None,
+            }, 
+        0),
+        (
+            { # Initial state, player 2's turn
+            'player1': {'position': (2, 0), 'orientation': 'W'},
+            'player2': {'position': (1, 3), 'orientation': 'E'},
+            'neutral': [(0, 0), (3, 3)],
+            'turn': 2,  
+            'bypass_player': None,
+            }, 
+        0),
+    ]
+    
+    
+)
+def test_evaluate_state(state, expected):
+    result = evaluate_state(state)
+    assert result == expected
 
 @pytest.mark.parametrize(
     "orientation, position, expected, should_succeed",
@@ -39,11 +87,12 @@ from L_Game_copy import getSecondaryOrientation
         ('W', (2, 3), 'N', False),
     ]
 )
-
 def test_get_secondary_orientation(orientation, position, expected, should_succeed):
     result = getSecondaryOrientation(position, orientation)
     if (should_succeed):
         assert result == expected
     else:
         assert result != expected
+
+
         
