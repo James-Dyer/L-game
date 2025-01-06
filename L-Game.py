@@ -343,8 +343,6 @@ def computerTurn(state):
 
     # Print the computer's move in the required format
     
-
-    
     if global_vars['game_mode'] == 'PvC':
         print("Computer's move:")
     else:

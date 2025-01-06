@@ -1,6 +1,8 @@
 import pytest
 from L_Game_copy import getSecondaryOrientation
 from L_Game_copy import evaluate_state
+from L_Game_copy import buildBoard
+from L_Game_copy import minimax
 
 @pytest.mark.parametrize(
     "state, expected",
@@ -41,13 +43,36 @@ from L_Game_copy import evaluate_state
             'bypass_player': None,
             }, 
         0),
-    ]
-    
-    
+    ] 
 )
 def test_evaluate_state(state, expected):
     result = evaluate_state(state)
     assert result == expected
+
+@pytest.mark.skip(reason="Test not writted yet")
+def test_buildBoard():
+    assert 1 + 1 == 3
+
+@pytest.mark.parametrize(
+    "state, maximizing_player, expected",
+    [
+        (
+            { # player 2 to win in one turn
+            'player1': {'position': (3, 0), 'orientation': 'S'},
+            'player2': {'position': (1, 3), 'orientation': 'E'},
+            'neutral': [(0, 0), (3, 3)],
+            'turn': 2,
+            'bypass_player': None,
+            }, 
+            False, (float('-inf'))
+        )
+    ]
+)
+def test_minimax_depth3(state, maximizing_player, expected):
+    board = buildBoard(state)
+    result, _ = minimax(state, board, 3, float('-inf'), float('inf'), maximizing_player)
+    assert result == expected
+
 
 @pytest.mark.parametrize(
     "orientation, position, expected, should_succeed",
@@ -93,6 +118,3 @@ def test_get_secondary_orientation(orientation, position, expected, should_succe
         assert result == expected
     else:
         assert result != expected
-
-
-        
