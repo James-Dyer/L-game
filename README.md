@@ -1,6 +1,25 @@
-# The L Game
+# L-Game
 
-The L Game was invented by Edward de Bono in 1967\. It is a two player game played on a 4x4 board, with each player having one 3x2 shaped “L piece”, and there are two 1x1 neutral pieces.   
+A Python implementation of Edward de Bono's strategy game with human, agent, and agent-vs-agent play. The agent combines minimax, alpha-beta pruning, heuristic move ordering, and cached state evaluation.
+
+[Interactive portfolio demo](https://james-dyer.github.io/portfolio-website/projects#lgame) · [Technical report](report.pdf)
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/James-Dyer/portfolio-website/main/src/assets/projects/l-game-cli.png" alt="L-Game command-line interface" width="720">
+</p>
+
+## Engineering highlights
+
+- Supports human-vs-human, human-vs-agent, and agent-vs-agent play
+- Implements depth-limited minimax with alpha-beta pruning
+- Uses heuristic state evaluation, move ordering, and caching to reduce search work
+- Exposes debug output for nodes evaluated and per-turn execution time
+- Uses a standardized text interface so compatible agents can play against one another
+
+## About the game
+
+The L-Game was invented by Edward de Bono in 1967. It is a two-player game played on a 4x4 board, with each player controlling one 3x2 L-shaped piece alongside two neutral 1x1 pieces.
+
 ![L-Game board visualized](https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/L_Game_start_position.svg/330px-L_Game_start_position.svg.png)
 
 *The L-Game initial board. ([https://en.wikipedia.org/wiki/L\_game](https://en.wikipedia.org/wiki/L_game))*
@@ -9,7 +28,7 @@ Each player takes turns moving their L piece, and then optionally moving a neutr
 
 This was an assigned lab project for UC Merced’s Fall 2024 CSE175 course, Intro to Artificial Intelligence. ([Archived link](http://web.archive.org/web/20241211222812/https://faculty.ucmerced.edu/mcarreira-perpinan/teaching/CSE175/L-game.html))
 
-## Features:
+## Features
 
 * Multiple Gameplay Options:  
   * Play against the computer, another human, or watch computer vs. computer.  
@@ -17,7 +36,7 @@ This was an assigned lab project for UC Merced’s Fall 2024 CSE175 course, Intr
 * Inter-project compatible API:  
   * The formatting of game’s input/output is standardized, so compatible projects can play games against each other. (More on project page linked above)  
 * CPU Strategies:  
-  * Implemented Minimax and Alpha-Beta Pruning up to a user defined depth.  
+  * Implemented Minimax and Alpha-Beta Pruning up to a user-defined depth.
   * Developed a heuristic evaluation function for efficient decisions.  
   * Optimized for performance using appropriate data structures and algorithms, as well as caching strategies.
 
